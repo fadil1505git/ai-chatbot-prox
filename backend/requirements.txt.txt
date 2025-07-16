@@ -1,7 +1,0 @@
-fastapi
-uvicorn
-llama-index
-llama-index-llms-ollama
-pdfplumber
-beautifulsoup4
-requests
