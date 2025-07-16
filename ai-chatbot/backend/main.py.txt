@@ -1,0 +1,40 @@
+from fastapi import FastAPI, Query, BackgroundTasks, UploadFile, File
+from chat_engine import get_query_engine
+from pathlib import Path
+import shutil
+import time
+
+app = FastAPI()
+query_engine = get_query_engine()
+
+@app.get("/ask")
+def ask(q: str = Query(..., description="Soalan pengguna")):
+    # Log pertanyaan
+    with open("queries.log", "a") as f:
+        f.write(f"{time.strftime('%Y-%m-%d %H:%M:%S')} - {q}\n")
+    response = query_engine.query(q)
+    return {"response": str(response)}
+
+@app.post("/reload")
+def reload_index(background_tasks: BackgroundTasks):
+    background_tasks.add_task(reload)
+    return {"status": "Reloading index..."}
+
+def reload():
+    global query_engine
+    query_engine = get_query_engine()
+
+@app.post("/upload")
+def upload_pdf(file: UploadFile = File(...)):
+    file_path = Path("pdfs") / file.filename
+    with file_path.open("wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+    return {"status": f"Uploaded {file.filename}"}
+
+@app.get("/logs")
+def get_logs():
+    try:
+        with open("queries.log") as f:
+            return f.read()
+    except FileNotFoundError:
+        return "Log kosong."
