@@ -2,6 +2,10 @@ fastapi
 uvicorn
 llama-index
 llama-index-llms-ollama
+llama-index-embeddings-huggingface
 pdfplumber
 beautifulsoup4
 requests
+transformers
+accelerate
+python-multipart
